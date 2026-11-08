@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Аккаунты — Школьный штаб</title>
+    <style>
+      body { font: 16px system-ui, sans-serif; margin: 2rem auto; max-width: 1250px; padding: 0 1rem; }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border-bottom: 1px solid #ddd; padding: .65rem; text-align: left; vertical-align: top; }
+      input, select, button { font: inherit; padding: .4rem; }
+      button { cursor: pointer; }
+      .filters, .actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+      .filters { margin: 1rem 0; }
+      .actions form { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+      .danger { color: #a00; }
+      .table-wrap { overflow-x: auto; }
+      .empty { color: #555; }
+      .pagination { display: flex; gap: 1rem; margin-top: 1rem; align-items: center; }
+      @media (max-width: 720px) { body { margin-top: 1rem; } }
+    </style>
+  </head>
+  <body>
+    <nav><a href="/admin/accounts">Аккаунты</a></nav>
+    <h1>Зарегистрированные аккаунты</h1>
+
+    <form method="get" action="/admin/accounts" class="filters">
+      <input type="search" name="search" value="{{ search }}" maxlength="100"
+             placeholder="ФИО, школа или MAX ID" aria-label="Поиск по ФИО, школе или MAX ID">
+      <select name="role_filter" aria-label="Фильтр по роли">
+        <option value="">Все роли</option>
+        {% for value, label in roles.items() %}
+        <option value="{{ value }}" {{ "selected" if role_filter == value else "" }}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Найти</button>
+      <a href="/admin/accounts">Сбросить</a>
+    </form>
+
+    <p>Найдено аккаунтов: {{ total }}</p>
+    {% if accounts %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>MAX ID</th><th>ФИО</th><th>Школа</th><th>Класс</th>
+            <th>Роль</th><th>Дата регистрации</th><th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in accounts %}
+          <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.max_user_id }}</td>
+            <td>{{ user.full_name }}</td>
+            <td>{{ user.school_name or "—" }}</td>
+            <td>{{ user.class_name or user.classes or "—" }}</td>
+            <td>{{ roles.get(user.role.value if user.role.value is defined else user.role, "Неизвестна") }}</td>
+            <td>{{ user.created_at.strftime("%d.%m.%Y %H:%M") if user.created_at else "—" }}</td>
+            <td>
+              <div class="actions">
+                <form method="post" action="/admin/accounts/{{ user.id }}/role"
+                      onsubmit="return confirm('Сменить роль? Несовместимые связи родителя/ученика и классы учителя будут удалены.');">
+                  <input type="hidden" name="search" value="{{ search }}">
+                  <input type="hidden" name="role_filter" value="{{ role_filter }}">
+                  <input type="hidden" name="page" value="{{ page }}">
+                  <select name="role" aria-label="Новая роль для {{ user.full_name }}">
+                    {% for value, label in roles.items() if value != "unselected" %}
+                    <option value="{{ value }}" {{ "selected" if (user.role.value if user.role.value is defined else user.role) == value else "" }}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit">Сменить роль</button>
+                </form>
+                <form method="post" action="/admin/accounts/{{ user.id }}/delete"
+                      onsubmit="return confirm('Удалить аккаунт {{ user.full_name }} вместе со всеми связанными данными? Это действие необратимо.');">
+                  <input type="hidden" name="confirm" value="delete">
+                  <input type="hidden" name="search" value="{{ search }}">
+                  <input type="hidden" name="role_filter" value="{{ role_filter }}">
+                  <input type="hidden" name="page" value="{{ page }}">
+                  <button class="danger" type="submit">Удалить</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="empty">По выбранным условиям аккаунты не найдены.</p>
+    {% endif %}
+
+    {% if total_pages > 1 %}
+    <nav class="pagination" aria-label="Страницы аккаунтов">
+      {% if page > 1 %}
+      <a href="/admin/accounts?search={{ search | urlencode }}&role_filter={{ role_filter | urlencode }}&page={{ page - 1 }}">← Назад</a>
+      {% endif %}
+      <span>Страница {{ page }} из {{ total_pages }}</span>
+      {% if page < total_pages %}
+      <a href="/admin/accounts?search={{ search | urlencode }}&role_filter={{ role_filter | urlencode }}&page={{ page + 1 }}">Вперёд →</a>
+      {% endif %}
+    </nav>
+    {% endif %}
+  </body>
+</html>

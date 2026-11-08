@@ -1,0 +1,25 @@
+# HTTPS для мини-приложения и админки — Caddy сам получает и продлевает
+# бесплатный сертификат Let's Encrypt.
+#
+# Использование (на сервере, в каталоге с docker-compose.yml):
+#   cp Caddyfile.example Caddyfile
+#   nano Caddyfile                     # заменить домен на свой
+#   docker compose --profile tls up -d # поднять caddy на портах 80/443
+#
+# Требования: A-запись домена уже указывает на IP этого сервера,
+# порты 80 и 443 открыты наружу. После запуска в .env поставьте
+#   MINI_APP_URL=https://ваш-домен     # без порта и без /mini
+
+hq.example.ru {
+	encode gzip
+
+	# Админка — только с доверенных IP (замените адрес или удалите блок).
+	@blocked_admin {
+		path /admin /admin/*
+		not remote_ip 127.0.0.1/32 1.2.3.4/32
+	}
+	respond @blocked_admin 403
+
+	# admin — имя сервиса из docker-compose.yml (доступно внутри сети compose)
+	reverse_proxy admin:8000
+}

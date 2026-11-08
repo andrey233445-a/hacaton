@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0b0514">
+  <title>Школьный штаб</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script>
+    try {
+      document.documentElement.setAttribute(
+        "data-theme", localStorage.getItem("mini_theme") || "dark"
+      );
+    } catch (e) { /* приватный режим — останется тёмная */ }
+  </script>
+  <link rel="stylesheet" href="/mini/static/mini.css">
+</head>
+<body>
+  <div id="app" class="app hidden">
+    <header class="app-header">
+      <div class="header-glow"></div>
+      <div class="header-row">
+        <div>
+          <div class="header-title">Школьный штаб</div>
+          <div class="header-sub" id="header-sub">загрузка…</div>
+        </div>
+        <div class="points-chip" id="points-chip" title="Очки">🏮 <span id="points-value">0</span></div>
+      </div>
+    </header>
+
+    <main id="view" class="view"></main>
+
+    <button id="fab" class="fab hidden" title="Добавить">＋</button>
+
+    <nav class="tabbar" id="tabbar"><!-- вкладки строятся в mini.js по роли --></nav>
+  </div>
+
+  <div id="auth-error" class="auth-error hidden">
+    <div class="auth-card">
+      <div class="auth-emoji">🔐</div>
+      <h2>Откройте ссылку из бота</h2>
+      <p>Это мини-приложение «Школьного штаба». Нажмите <b>«🕹 Открыть мини-приложение»</b> в меню бота — вход произойдёт автоматически.</p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <div id="modal-root" class="modal-root hidden"></div>
+  <div id="loader" class="loader"><div class="spinner"></div></div>
+
+  <script src="/mini/static/mini.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: hq_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      # Только для отладки с самого сервера: наружу 5432 не публикуем,
+      # иначе базу с дефолтным паролем подберут сканеры портов.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build: .
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: alembic upgrade head
+
+  bot:
+    build: .
+    container_name: hq_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: python -m app.main
+
+  admin:
+    build: .
+    container_name: hq_admin
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "8000:8000"
+    command: uvicorn app.admin_web.main:app --host 0.0.0.0 --port 8000
+
+  # Необязательный HTTPS-терминатор (домен + бесплатный сертификат Let's Encrypt).
+  # Стартует только явно: docker compose --profile tls up -d
+  # Предварительно создайте Caddyfile из Caddyfile.example и впишите свой домен.
+  caddy:
+    image: caddy:2-alpine
+    container_name: hq_caddy
+    restart: unless-stopped
+    profiles: ["tls"]
+    depends_on:
+      - admin
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

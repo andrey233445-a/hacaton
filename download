@@ -1,0 +1,31 @@
+# Git
+.git
+.gitignore
+
+# Virtual environments
+.venv/
+venv/
+
+# Local PostgreSQL data (Windows dev only)
+pgsql/
+
+# Bytecode and caches
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secrets and local env files (compose injects env_file from the host)
+.env
+.env.server
+
+# Local runtime artifacts
+bot.db
+*.log
+*.zip
+
+# Распакованная копия деплой-архива (дубль кода в контексте сборки)
+hq-deploy/
+
+# IDEs
+.vscode/
+.idea/

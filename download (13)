@@ -1,0 +1,40 @@
+# === Серверный вариант .env (Docker Compose) ===
+# Скопируйте этот файл в .env на сервере:  cp .env.server .env
+# Единственное отличие от локального .env — хост БД `db` (имя сервиса из docker-compose.yml).
+
+# --- Секреты MAX-бота ---
+BOT_TOKEN=f9LHodD0cOIz2CYB3QNm1-17N-Rb2P61NfPhdQTjium4a-I_lbXzRpDJ_R6slNKytpFvOKwf-RIic0g7od6H
+API_BASE_URL=https://botapi.max.ru/v1/
+WEBHOOK_BASE_URL=
+WEBHOOK_PATH=/max/webhook
+WEBHOOK_IPS=176.112.200.48,95.163.128.0/21,95.163.224.0/20
+
+# --- База данных (хост db = сервис из docker-compose.yml) ---
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+POSTGRES_USER=hq_user
+POSTGRES_PASSWORD=a68f4775fe1f73325e19de44
+POSTGRES_DB=school_hq_db
+DATABASE_URL=postgresql+asyncpg://hq_user:a68f4775fe1f73325e19de44@db:5432/school_hq_db
+
+# --- Психолог: кабинет и AI-модуль (необязательно) ---
+ADMIN_TOKEN=admin-secret-change-me
+AI_PSYCHOLOGIST_BASE_URL=https://api.plakcel.xyz/v1
+AI_PSYCHOLOGIST_API_KEY=sk-kimi-c4c2ca590c7644449a
+AI_PSYCHOLOGIST_MODEL=kimi-k3
+
+# --- Скрытая dev-панель: MAX ID команды разработчиков через запятую ---
+DEV_MAX_IDS=7157581,233895591
+DEV_COMMAND=/dev
+
+# --- Админ-панель: логин и пароль входа на :8000 ---
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=admin
+
+# --- Fernet-ключ шифрования паролей классов (общий для всех окружений) ---
+CLASS_PASSWORD_KEY=65caQHyS3aOh-LSwsG05Yi50RjFnK6whSCkpD-43y0w=
+
+# --- Мини веб-приложение: публичный адрес сервера (порт 8000) ---
+# Замените на внешний адрес вашего сервера, например http://1.2.3.4:8000
+# или https://hq.example.com — по нему бот открывает мини-приложение.
+MINI_APP_URL=https://air-equality-performances-rev.trycloudflare.com

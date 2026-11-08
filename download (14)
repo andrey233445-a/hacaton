@@ -1,0 +1,26 @@
+# Environment variables
+.env
+.env.server
+
+# Virtual environments
+.venv/
+venv/
+
+# Bytecode
+__pycache__/
+*.pyc
+
+# Local runtime artifacts
+bot.db
+*.log
+*.zip
+.pgsql/
+pgsql/
+.pytest_cache/
+
+# IDEs
+.vscode/
+.idea/
+
+# Alembic temp
+*.egg-info/
